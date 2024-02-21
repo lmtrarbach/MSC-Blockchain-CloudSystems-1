@@ -1,0 +1,25 @@
+Resources:
+  AthenaReports:
+    Type: AWS::QuickSight::Analysis
+    Properties:
+      AnalysisId: String
+      AwsAccountId: String
+      Definition: 
+        AnalysisDefinition
+      Errors: 
+        - AnalysisError
+      Name: String
+      Parameters: 
+        Parameters
+      Permissions: 
+        - ResourcePermission
+      Sheets: 
+        - Sheet
+      SourceEntity: 
+        AnalysisSourceEntity
+      Status: String
+      Tags: 
+        - Tag
+      ThemeArn: String
+      ValidationStrategy: 
+        ValidationStrategy

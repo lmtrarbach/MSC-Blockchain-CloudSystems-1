@@ -861,7 +861,7 @@ Resources:
     Type: AWS::Events::Rule
     Properties:
       Description: Scheduled Rule
-      ScheduleExpression: cron(0 0 ? * * *)
+      ScheduleExpression: cron(0,45 * ? * * *)
       State: ENABLED
       Targets:
         - Arn: !GetAtt LambdaSyncPartitions.Arn
