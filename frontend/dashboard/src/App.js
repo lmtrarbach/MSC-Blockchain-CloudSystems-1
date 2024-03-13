@@ -3,6 +3,8 @@ import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import './input.css'
 import { Line } from '@ant-design/charts';
+import EthBurn from './components/eth_burn';
+import TokenHolder from './components/token_holders';
 
 
 const user = {
@@ -30,24 +32,6 @@ function classNames(...classes) {
 
 function App() {
 
-  const data = [
-    { year: '1991', value: 3 },
-    { year: '1992', value: 4 },
-    { year: '1993', value: 3.5 },
-    { year: '1994', value: 5 },
-    { year: '1995', value: 4.9 },
-    { year: '1996', value: 6 },
-    { year: '1997', value: 7 },
-    { year: '1998', value: 9 },
-    { year: '1999', value: 13 },
-  ];
-
-  const config = {
-    data,
-    height: 400,
-    xField: 'year',
-    yField: 'value',
-  };
 
   return (
     <>
@@ -214,11 +198,17 @@ function App() {
         <header className="bg-white shadow">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
-            <Line {...config} />
           </div>
         </header>
         <main>
-          <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">{/* Your content */}</div>
+          <div className='columns-2 gap-2'>
+            <EthBurn />
+            <TokenHolder />
+          </div>
+          <div className='columns-2 gap-2'>
+            
+          </div>
+          
         </main>
       </div>
     </>
