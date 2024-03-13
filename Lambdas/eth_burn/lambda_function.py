@@ -92,12 +92,21 @@ def lambda_handler(event, context):
     """
     try:
         query_parameters = parse_qs(event['rawQueryString'])
-        token_address = query_parameters['token_address'][0]
-        date = query_parameters['date'][0]
         # Mount query with parameters parsed on GET method
         # It query the value burned on the given day.
-        sql_query_to_execute = f'SELECT COUNT(*) FROM "token_transfers" WHERE "date" = \'{date}\' AND "token_address" = \'{token_address}\' AND "to_address" = \'0x0000000000000000000000000000000000000000\';'
-
+        sql_query_to_execute = f'''
+            SELECT 
+                from_address,
+                DATE_TRUNC('day', block_timestamp) AS transfer_date,
+                COUNT(*) AS transfer_count,
+                SUM(value) AS total_eth_transferred
+            FROM transactions
+            WHERE to_address = '0x000000000000000000000000000000000000dead'
+                AND value > 0
+            GROUP BY from_address, DATE_TRUNC('day', block_timestamp)
+            ORDER BY transfer_date DESC, total_eth_transferred DESC
+            LIMIT 100;
+        '''
         
         athena_parameters = {
             'region': 'us-east-2',  # My athena deploy is on this region
