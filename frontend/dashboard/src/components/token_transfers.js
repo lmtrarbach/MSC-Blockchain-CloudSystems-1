@@ -1,31 +1,92 @@
 import React, { useEffect, useState } from 'react';
-import fetchEthBurn from '../api/lambdas';
-import { Line } from '@ant-design/charts';
+import fetchTokenTransfer from '../api/fetchTokenTransfer';
+import { Column, Line } from '@ant-design/charts';
+import BigNumber from 'bignumber.js';
 
-const TokenTransfer = () => {
-    //const [data, setData] = useState({});
 
-    const data = [
-      {
-        num_of_transactions: "74130",
-        total_value: "7.03596163904997E15",
-        received_most_value:
-          "0x00000000000000000000000055fe002aeff02f77364de339a1292923a15844b8",
-        sent_most_value:
-          "0x000000000000000000000000a9d1e08c7793af67e9d92fe308d5697fb81d3e43",
-      },
-    ];
+const TokenTransfer = ({tokenAddress}) => {
+    const [data, setData] = useState([]);
+    const [dataLine, setDataLine] = useState([]);
+
     
-      const config = {
-        data,
-        height: 400,
-        xField: 'year',
-        yField: 'value',
-      };
 
-    //useEffect(() => {});
-    return (
-        <Line {...config} />
+    const configValueTranfer = {
+      data: dataLine,
+      height: 400,
+      xField: 'date',
+      yField: 'value',
+    };
+    
+    const config = {
+      data,
+      xField: 'type',
+      yField: 'value',
+      legend: false,
+    };
+
+      useEffect(() => {
+        let isSubscribed = true;
+        
+        const fetchData = async () => {
+          const rawData = await fetchTokenTransfer(tokenAddress);
+          console.log(rawData);
+          if(isSubscribed)
+          {
+            
+            const processedData = rawData.sort(function(a,b){
+              // Turn your strings into dates, and then subtract them
+              // to get a value that is either negative, positive, or zero.
+              return new Date(b.date) - new Date(a.date);
+            }).map((element, index, array) => {
+              return {
+                type:  element.date,
+                value: element.num_of_transactions
+              }
+            });
+
+            const processedDataAddress = rawData.sort(function(a,b){
+              // Turn your strings into dates, and then subtract them
+              // to get a value that is either negative, positive, or zero.
+              return new Date(b.date) - new Date(a.date);
+            }).map((element, index, array) => {
+              const num = new BigNumber(element.total_value);
+              
+              return {
+                date:  element.date,
+                value: num.c[0]
+              }
+            });
+
+            
+
+            setData(processedData);
+            setDataLine(processedDataAddress);
+            
+          }
+        }
+        
+        if(tokenAddress)
+          fetchData();
+  
+        return () => {
+          isSubscribed = false;
+        };
+      }, [tokenAddress]);
+    
+      if(!tokenAddress)
+      {
+          return <></>
+      }
+    
+    
+      return (
+        <>
+          <Column {...config} />
+          <Line {...configValueTranfer}/>
+        </> 
+        
+        
+        
     )
 }
 

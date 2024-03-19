@@ -1,65 +1,52 @@
 import React, { useEffect, useState } from 'react';
-import fetchEthBurn from '../api/lambdas';
+import fetchTokenHolders from '../api/fetchTokenHolders';
 import { Pie } from '@ant-design/plots';
 import Web3 from 'web3';
+import bigInt from 'big-integer';
+import BigNumber from 'bignumber.js';
 
-const TokenHolder = () => {
-    //const [data, setData] = useState({});
+
+const TokenHolder = ({tokenAddress}) => {
+    const [data, setData] = useState({});
+    const [address, setAddress] = useState(tokenAddress);
     const web3 = new Web3();
     
+    useEffect(() => {
+      let isSubscribed = true;
+      
+      const fetchData = async () => {
+        const rawData = await fetchTokenHolders(tokenAddress);
+        
+        if(isSubscribed)
+        {
+          const processedData = rawData.map((element, index, array)=> {
+                // Remove leading zeros after "0x"
+                const trimmedString = element.address.replace(/^0x0+/, '0x');
+                // For example, to get "0x4da27a545", which is 10 characters long including "0x"
+                const desiredLength = 10; // Including "0x"
+                const shortenedString = trimmedString.length > desiredLength ? '0x' + trimmedString.substring(2, desiredLength - 2 + 2) : trimmedString;
+                const num = new BigNumber(element.total_holdings);
+                
+                return {
+                  type: shortenedString,
+                  value: num.c[0]
+                };
+            });
+
+          setData(processedData);
+        }
+      }
+      
+      if(tokenAddress)
+        fetchData();
+
+      return () => {
+        isSubscribed = false;
+      };
+    }, [tokenAddress]);
+
     const config = {
-      data : [
-          {
-            type:
-              "0x48772",
-            value: web3.utils.fromWei(1.660000092E15, 'ether'),
-          },
-          {
-            type:
-              "0x6d503",
-            value: web3.utils.fromWei(4.4299999984E14, 'ether'),
-          },
-          {
-            type:
-              "0x7180d",
-            value: web3.utils.fromWei(4.16505675619347E14, 'ether'),
-          },
-          {
-            type:
-              "0x2d69c8",
-            value: web3.utils.fromWei(3.71332514436438E14, 'ether'),
-          },
-          {
-            type:
-              "0x1bfb5",
-            value: web3.utils.fromWei(3.5E14, 'ether'),
-          },
-          {
-            type:
-              "0x054c5e",
-            value: web3.utils.fromWei(3.5E14, 'ether'),
-          },
-          {
-            type:
-              "0xe2c4b1",
-            value: web3.utils.fromWei(3.5E14, 'ether'),
-          },
-          {
-            type:
-              "0x5bbbdf",
-            value: web3.utils.fromWei(3.38443766564476E14, 'ether'),
-          },
-          {
-            type:
-              "0xbf21d60",
-            value: web3.utils.fromWei(3.30188361213888E14, 'ether'),
-          },
-          {
-            type:
-              "0x973cbb",
-            value: web3.utils.fromWei(3.05258472737106E14, 'ether'),
-          },
-        ],
+      data : data,
         angleField: 'value',
         colorField: 'type',
         paddingRight: 80,
@@ -76,6 +63,10 @@ const TokenHolder = () => {
         },
     };
     
+    if(!tokenAddress)
+      {
+          return <></>
+      }
       
 
     //useEffect(() => {});

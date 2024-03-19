@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import fetchEthBurn from '../api/lambdas';
+import fetchEthBurn from '../api/fetchEthBurn';
 import { Line } from '@ant-design/charts';
 
-const EthBurn = () => {
+const EthBurn = ({tokenAddress}) => {
     //const [data, setData] = useState({});
 
     const data = [
@@ -24,7 +24,29 @@ const EthBurn = () => {
         yField: 'value',
       };
 
-    //useEffect(() => {});
+    
+      useEffect(() => {
+        let isSubscribed = true;
+        
+        const fetchData = async () => {
+          const data = await fetchEthBurn(tokenAddress);
+          if(isSubscribed)
+          {
+            //update data
+            //setData
+            console.log(data);
+          }
+        }
+        
+        if(tokenAddress)
+          fetchData();
+  
+        return () => {
+          isSubscribed = false;
+        };
+      }, [tokenAddress]);
+
+
     return (
         <Line {...config} />
     )
