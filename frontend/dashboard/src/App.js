@@ -51,7 +51,7 @@ function App() {
               <TokenDetail token={tokenData}/>
             </div>
             <br/>
-            <div className='columns-3'>
+            <div className='flex justify-between px-4 py-8 space-x-4'>
               <TokenTransfer tokenAddress={tokenAddress} />
               <TokenHolder tokenAddress={tokenAddress} />
             </div>

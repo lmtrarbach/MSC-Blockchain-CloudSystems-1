@@ -14,6 +14,23 @@ const TokenHolder = ({tokenAddress}) => {
     useEffect(() => {
       let isSubscribed = true;
       
+      const convertENotationToNumber = (num) => {
+        const str = num.toString()
+        const match = str.match(/^(\d+)(\.(\d+))?[eE]([-\+]?\d+)$/)
+        if (!match) return str //number was not e notation or toString converted
+        // we parse the e notation as (integer).(tail)e(exponent)
+        const [, integer,, tail, exponentStr ] = match
+        const exponent = Number(exponentStr)
+        const realInteger = integer + (tail || '')
+        if(exponent > 0) {
+            const realExponent = Math.abs(exponent + integer.length)
+            return realInteger.padEnd(realExponent, '0')
+        } else {
+            const realExponent = Math.abs(exponent - (tail?.length || 0))
+            return '0.'+ realInteger.padStart(realExponent, '0')
+        }
+      }
+
       const fetchData = async () => {
         const rawData = await fetchTokenHolders(tokenAddress);
         
@@ -25,11 +42,15 @@ const TokenHolder = ({tokenAddress}) => {
                 // For example, to get "0x4da27a545", which is 10 characters long including "0x"
                 const desiredLength = 10; // Including "0x"
                 const shortenedString = trimmedString.length > desiredLength ? '0x' + trimmedString.substring(2, desiredLength - 2 + 2) : trimmedString;
+                console.log(element.total_holdings);
+                
+                
                 const num = new BigNumber(element.total_holdings);
+                
                 
                 return {
                   type: shortenedString,
-                  value: num.c[0]
+                  value: parseInt(convertENotationToNumber(element.total_holdings).toString().substring(1,10))
                 };
             });
 
@@ -71,7 +92,9 @@ const TokenHolder = ({tokenAddress}) => {
 
     //useEffect(() => {});
     return (
+      <div className="flex-1">
         <Pie {...config} />
+      </div>
     )
 }
 
